@@ -1,3 +1,5 @@
+import {ERecordSort} from '../constants/notion-constant'
+
 export interface INotionResponse {
     results: INotionResultRecord[]
 }
@@ -17,6 +19,21 @@ export interface INotionProperty {
             text: {
                 content: string
             }
-        }
+        },
     ]
+}
+
+export interface INotionSort {
+    property: string
+    direction: ERecordSort
+}
+
+export interface INotionFilterItem {
+    equals: string | number
+}
+
+export interface INotionFilter {
+    property: string
+    number?: INotionFilterItem
+    text?: INotionFilterItem
 }
