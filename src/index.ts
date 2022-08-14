@@ -20,7 +20,8 @@ async function requestHandler(request: Request, env: Env, ctx: ExecutionContext)
             }
             case EHttpMethod.POST: {
                 const requestBody = JSON.parse(await request.text())
-                await httpController.postUser(requestBody)
+                const userId: number = await httpController.postUser(requestBody)
+                result = JSON.stringify({user_id: userId})
                 break
             }
             case EHttpMethod.PATCH: {

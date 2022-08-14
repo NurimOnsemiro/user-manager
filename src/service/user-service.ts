@@ -2,7 +2,7 @@ import {IUser} from '../@types/user-type'
 import * as notionManager from '../manager/notion-manager'
 import {makeNotionPatchUserData, makeNotionPostUserData} from '../utils/notion-helper'
 
-export async function postUser(user: IUser) {
+export async function postUser(user: IUser): Promise<number> {
     const userName = user.user_name!
     console.log(userName)
     // Step 1. DB에 user_name이 존재하는지 확인
@@ -24,6 +24,13 @@ export async function postUser(user: IUser) {
     const newUser = makeNotionPostUserData(userName, userId)
     console.log('[PASS] new userInfo', JSON.stringify(newUser))
     await notionManager.postRecord(newUser)
+
+    let newUserId: number
+    {
+        const userInfo = await notionManager.getRecordByTextColumn<IUser>('user_name', userName)
+        newUserId = userInfo.user_id!
+    }
+    return newUserId
 }
 
 export async function getUserByUserId(userId: number): Promise<IUser> {
@@ -31,7 +38,7 @@ export async function getUserByUserId(userId: number): Promise<IUser> {
     return result
 }
 
-export async function getPageIdByRecordId(userId: number) {
+export async function getPageIdByUserId(userId: number) {
     console.log(`user_id : ${userId}`)
     const ret = await notionManager.getRecordByNumberColumn<IUser>('user_id', userId)
     if (ret == undefined) {
@@ -42,7 +49,7 @@ export async function getPageIdByRecordId(userId: number) {
 
 export async function updateUser(userInfo: IUser): Promise<void> {
     // Step 1. DB에 user_name이 존재하는지 확인
-    const pageId = await getPageIdByRecordId(userInfo.user_id!)
+    const pageId = await getPageIdByUserId(userInfo.user_id!)
 
     // Step 2. 사용자 정보 수정
     const patchUser = makeNotionPatchUserData(userInfo)
@@ -52,7 +59,7 @@ export async function updateUser(userInfo: IUser): Promise<void> {
 
 export async function deleteUser(userId: number): Promise<void> {
     // Step 1. 레코드 페이지 ID 조회
-    const pageId = await getPageIdByRecordId(userId)
+    const pageId = await getPageIdByUserId(userId)
     // Step 2. 사용자 정보
     const deleteUser = makeNotionPatchUserData({user_id: userId})
     deleteUser.archived = true
