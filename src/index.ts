@@ -1,3 +1,4 @@
+import {EHttpMethod} from './constants/http-constant'
 import * as httpController from './controller/http-controller'
 
 export interface Env {}
@@ -12,20 +13,25 @@ async function requestHandler(request: Request, env: Env, ctx: ExecutionContext)
     try {
         let result: string = ''
         switch (request.method) {
-            case 'GET': {
+            case EHttpMethod.GET: {
                 const userId: number = Number(request.url.split('user/')[1])
                 result = JSON.stringify(await httpController.getUserByUserId(userId))
                 break
             }
-            case 'POST': {
+            case EHttpMethod.POST: {
                 const requestBody = JSON.parse(await request.text())
                 await httpController.postUser(requestBody)
                 break
             }
-            case 'PUT': {
+            case EHttpMethod.PATCH: {
+                const userId: number = Number(request.url.split('user/')[1])
+                const requestBody = JSON.parse(await request.text())
+                await httpController.updateUser(userId, requestBody)
                 break
             }
-            case 'DELETE': {
+            case EHttpMethod.DELETE: {
+                const userId: number = Number(request.url.split('user/')[1])
+                await httpController.deleteUser(userId)
                 break
             }
             default: {

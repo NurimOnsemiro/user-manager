@@ -9,6 +9,11 @@ export async function getUserByUserId(userId: number): Promise<IUser> {
     return await userService.getUserByUserId(userId)
 }
 
-export async function updateUser(userInfo: IUser): Promise<void> {}
+export async function updateUser(userId: number, userInfo: IUser): Promise<void> {
+    userInfo.user_id = userId
+    return await userService.updateUser(userInfo)
+}
 
-export async function deleteUser(userId: number): Promise<void> {}
+export async function deleteUser(userId: number): Promise<void> {
+    return await userService.deleteUser(userId)
+}

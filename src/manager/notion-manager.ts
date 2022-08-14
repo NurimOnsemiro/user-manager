@@ -30,10 +30,19 @@ export async function getHighestRecordId<T>() {
 }
 
 export async function postRecord(record: any) {
-    const reqData = makeNotionRequestData(EHttpMethod.POST, {
-        ...record,
+    return await sendRecord(NOTION_PAGE_API, EHttpMethod.POST, record)
+}
+
+export async function patchRecord(pageId: string, record: any) {
+    console.log(record)
+    return await sendRecord(`${NOTION_PAGE_API}/${pageId}`, EHttpMethod.PATCH, record)
+}
+
+export async function sendRecord(uri: string, method: EHttpMethod, body: any) {
+    const reqData = makeNotionRequestData(method, {
+        ...body,
     })
-    await sendNotionRequest(NOTION_PAGE_API, reqData)
+    return await sendNotionRequest(uri, reqData)
 }
 
 interface IGetRecordOptions {
@@ -43,11 +52,10 @@ interface IGetRecordOptions {
 
 async function getRecord<T>(recordOptions: IGetRecordOptions) {
     const {filter, sorts} = recordOptions
-    const reqData = makeNotionRequestData(EHttpMethod.POST, {
+    const resData = await sendRecord(NOTION_DB_API, EHttpMethod.POST, {
         filter: filter as INotionFilter,
         sorts: sorts as INotionSort[],
     })
-    const resData = await sendNotionRequest(NOTION_DB_API, reqData)
     const results: T[] = []
     for (const result of resData.results) {
         results.push(extractNotionData(result))
